@@ -1,3 +1,6 @@
+#include <R.h>
+#include <Rdefines.h>
+
 #include<time.h>
 #include <math.h>
 #include <stdio.h>
@@ -41,8 +44,11 @@ static inline double powi(double base, int times)
 
 static void print_string_stdout(const char *s)
 {
+    /*
 	fputs(s,stdout);
 	fflush(stdout);
+	*/
+	Rprintf(s);
 }
 static void (*svm_print_string) (const char *) = &print_string_stdout;
 #if 1
@@ -772,7 +778,8 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 			active_size = l;
 			info("*");
 		}
-		fprintf(stderr,"\nWARNING: reaching max number of iterations\n");
+		REprintf("\nWARNING: reaching max number of iterations\n");
+		//fprintf(stderr,"\nWARNING: reaching max number of iterations\n");
 	}
 
 	// calculate rho
@@ -2108,10 +2115,11 @@ static void svm_binary_svc_probability(
 	double *dec_values = Malloc(double,prob->l);
 
 	// random shuffle
+	GetRNGstate();
 	for(i=0;i<prob->l;i++) perm[i]=i;
 	for(i=0;i<prob->l;i++)
 	{
-		int j = i+rand()%(prob->l-i);
+		int j = i+((int) (unif_rand() * (prob->l-i))) % (prob->l-i);
 		swap(perm[i],perm[j]);
 	}
 	for(i=0;i<nr_fold;i++)
@@ -2384,7 +2392,8 @@ svm_model *svm_train(const svm_problem *prob, const svm_parameter *param)
 				if(param->weight_label[i] == label[j])
 					break;
 			if(j == nr_class)
-				fprintf(stderr,"WARNING: class label %d specified in weight is not found\n", param->weight_label[i]);
+    			REprintf("WARNING: class label %d specified in weight is not found\n", param->weight_label[i]);
+				//fprintf(stderr,"WARNING: class label %d specified in weight is not found\n", param->weight_label[i]);
 			else
 				weighted_C[j] *= param->weight[i];
 		}
@@ -2583,6 +2592,12 @@ void svm_cross_validation(const svm_problem *prob, const svm_parameter *param, i
 	int *perm = Malloc(int,l);
 	int nr_class;
 
+    GetRNGstate();
+    if (nr_fold > l)
+    {
+        nr_fold = l;
+        REprintf("WARNING: # folds > # data. Will use # folds = # data instead (i.e., leave-one-out cross validation)\n");
+    }
 	// stratified cv may not give leave-one-out rate
 	// Each class to l folds -> some folds may have zero elements
 	if((param->svm_type == C_SVC ||
@@ -2602,7 +2617,8 @@ void svm_cross_validation(const svm_problem *prob, const svm_parameter *param, i
 		for (c=0; c<nr_class; c++) 
 			for(i=0;i<count[c];i++)
 			{
-				int j = i+rand()%(count[c]-i);
+			
+				int j = i+((int) (unif_rand() * (count[c]-i)))%(count[c]-i);
 				swap(index[start[c]+j],index[start[c]+i]);
 			}
 		for(i=0;i<nr_fold;i++)
@@ -2639,7 +2655,7 @@ void svm_cross_validation(const svm_problem *prob, const svm_parameter *param, i
 		for(i=0;i<l;i++) perm[i]=i;
 		for(i=0;i<l;i++)
 		{
-			int j = i+rand()%(l-i);
+			int j = i+((int) (unif_rand() * (l-i)))%(l-i);
 			swap(perm[i],perm[j]);
 		}
 		for(i=0;i<=nr_fold;i++)
@@ -2727,7 +2743,8 @@ double svm_get_svr_probability(const svm_model *model)
 		return model->probA[0];
 	else
 	{
-		fprintf(stderr,"Model doesn't contain information for SVR probability inference\n");
+	    REprintf("Model doesn't contain information for SVR probability inference\n");
+		//fprintf(stderr,"Model doesn't contain information for SVR probability inference\n");
 		return 0;
 	}
 }
@@ -3025,7 +3042,7 @@ svm_model *svm_load_model(const char *model_file_name)
 			}
 			if(svm_type_table[i] == NULL)
 			{
-				fprintf(stderr,"unknown svm type.\n");
+				REprintf("unknown svm type.\n");
 				
 				setlocale(LC_ALL, old_locale);
 				free(old_locale);
@@ -3050,7 +3067,7 @@ svm_model *svm_load_model(const char *model_file_name)
 			}
 			if(kernel_type_table[i] == NULL)
 			{
-				fprintf(stderr,"unknown kernel function.\n");
+				REprintf("unknown kernel function.\n");
 				
 				setlocale(LC_ALL, old_locale);
 				free(old_locale);
@@ -3117,7 +3134,7 @@ svm_model *svm_load_model(const char *model_file_name)
 		}
 		else
 		{
-			fprintf(stderr,"unknown text in model file: [%s]\n",cmd);
+			REprintf("unknown text in model file: [%s]\n",cmd);
 			
 			setlocale(LC_ALL, old_locale);
 			free(old_locale);
