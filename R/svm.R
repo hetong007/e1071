@@ -184,8 +184,17 @@ function (x,
     if (type > 2 && !is.numeric(y))
         stop("Need numeric dependent variable for regression.")
 
-    if (length(alpha)==1)
-        alpha = rep(alpha,nr)
+    if (!is.null(alpha)) {
+        if (is.matrix(alpha))
+            alpha = as.vector(t(alpha))
+        if (is.factor(y)) {
+            nclass = length(levels(y))
+            if (length(alpha)==1)
+                alpha = rep(alpha,nrow(x)*nclass)
+            if (length(alpha)!=nrow(x)*nclass)
+                stop("length of alpha should equal")
+        }
+    }
     
     lev <- NULL
     weightlabels <- NULL
