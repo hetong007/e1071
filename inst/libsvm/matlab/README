@@ -1,3 +1,30 @@
+The MATLAB/OCTAVE interface of LIBSVM-NOBIAS. 
+It also allows to input the initial alpha into LIBSVM-NOBIAS. 
+The program is modified from LIBSVM-3.14. 
+
+============
+Main Changes
+============
+
+Allows users to input the initial values alpha into svmtrain. 
+
+Usage of svmtrain:
+
+matlab> model = svmtrain(training_label_vector, training_instance_matrix [, initial_alpha] [, 'libsvm_options']);
+
+        -training_label_vector:
+            An m by 1 vector of training labels (type must be double).
+        -training_instance_matrix:
+            An m by n matrix of m training instances with n features.
+            It can be dense or sparse (type must be double).
+		-initial_alpha: 
+			An m by 1 matrix of the initial alpha values (default 0 for LIBSVM). 
+        -libsvm_options:
+            A string of training options in the same format as that of LIBSVM.
+
+This modification is done by Cho-Jui Hsieh, Si Si, and Inderjit S. Dhillon. 
+Other functions are the same with the original LIBSVM as the following documentation from LIBSVM 3.14 package.  
+
 -----------------------------------------
 --- MATLAB/OCTAVE interface of LIBSVM ---
 -----------------------------------------
@@ -91,7 +118,6 @@ matlab> model = svmtrain(training_label_vector, training_instance_matrix [, 'lib
             A string of training options in the same format as that of LIBSVM.
 
 matlab> [predicted_label, accuracy, decision_values/prob_estimates] = svmpredict(testing_label_vector, testing_instance_matrix, model [, 'libsvm_options']);
-matlab> [predicted_label] = svmpredict(testing_label_vector, testing_instance_matrix, model [, 'libsvm_options']);
 
         -testing_label_vector:
             An m by 1 vector of prediction labels. If labels of test
@@ -116,7 +142,6 @@ totalSV, rho, Label, ProbA, ProbB, nSV, sv_coef, SVs]:
         -totalSV: total #SV
         -rho: -b of the decision function(s) wx+b
         -Label: label of each class; empty for regression/one-class SVM
-        -sv_indices: values in [1,...,num_traning_data] to indicate SVs in the training set
         -ProbA: pairwise probability information; empty if -b 0 or in one-class SVM
         -ProbB: pairwise probability information; empty if -b 0 or in one-class SVM
         -nSV: number of SVs for each class; empty for regression/one-class SVM
@@ -162,7 +187,7 @@ of svmtrain or svmpredict.
 
 A matlab function libsvmwrite writes Matlab matrix to a file in LIBSVM format:
 
-libsvmwrite('data.txt', label_vector, instance_matrix)
+libsvmwrite('data.txt', label_vector, instance_matrix]
 
 The instance_matrix must be a sparse matrix. (type must be double)
 For 32bit and 64bit MATLAB on Windows, pre-built binary files are ready 
@@ -231,15 +256,6 @@ Additional Information
 This interface was initially written by Jun-Cheng Chen, Kuan-Jen Peng,
 Chih-Yuan Yang and Chih-Huai Cheng from Department of Computer
 Science, National Taiwan University. The current version was prepared
-by Rong-En Fan and Ting-Fan Wu. If you find this tool useful, please
-cite LIBSVM as follows
+by Rong-En Fan and Ting-Fan Wu. 
+We thank the above authors to provide the interface.  
 
-Chih-Chung Chang and Chih-Jen Lin, LIBSVM : a library for support
-vector machines. ACM Transactions on Intelligent Systems and
-Technology, 2:27:1--27:27, 2011. Software available at
-http://www.csie.ntu.edu.tw/~cjlin/libsvm
-
-For any question, please contact Chih-Jen Lin <cjlin@csie.ntu.edu.tw>,
-or check the FAQ page:
-
-http://www.csie.ntu.edu.tw/~cjlin/libsvm/faq.html#/Q10:_MATLAB_interface

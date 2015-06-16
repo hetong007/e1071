@@ -203,6 +203,12 @@ const char *model_to_matlab_structure(mxArray *plhs[], int num_of_feature, struc
 		mxSetField(return_model,0,field_names[i],mxDuplicateArray(rhs[i]));
 	/* return */
 	plhs[0] = return_model;
+	plhs[1] = mxCreateDoubleMatrix(1,1,mxREAL);
+	double *tt = mxGetPr(plhs[1]);
+	*tt = model->obj;
+	plhs[2] = mxCreateDoubleMatrix(1,1,mxREAL);
+	double *qq = mxGetPr(plhs[2]);
+	*qq = model->initial_time;
 	mxFree(rhs);
 
 	return NULL;
@@ -323,7 +329,7 @@ struct svm_model *matlab_matrix_to_model(const mxArray *matlab_struct, const cha
 
 	// SV
 	{
-		int sr, elements;
+		int sr, sc, elements;
 		int num_samples;
 		mwIndex *ir, *jc;
 		mxArray *pprhs[1], *pplhs[1];
@@ -339,6 +345,7 @@ struct svm_model *matlab_matrix_to_model(const mxArray *matlab_struct, const cha
 		rhs[id] = pplhs[0];
 
 		sr = (int)mxGetN(rhs[id]);
+		sc = (int)mxGetM(rhs[id]);
 
 		ptr = mxGetPr(rhs[id]);
 		ir = mxGetIr(rhs[id]);
