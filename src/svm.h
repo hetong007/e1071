@@ -1,7 +1,7 @@
 #ifndef _LIBSVM_H
 #define _LIBSVM_H
 
-#define LIBSVM_VERSION 317
+#define LIBSVM_VERSION 314
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +20,10 @@ struct svm_problem
 	int l;
 	double *y;
 	struct svm_node **x;
+	double *alpha;
+	int isalpha;
+	double *pp;
+	int ispp;
 };
 
 enum { C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR, NU_SVR };	/* svm_type */
@@ -46,13 +50,13 @@ struct svm_parameter
 	int probability; /* do probability estimates */
 };
 
-/*
 //
 // svm_model
-//
-*/ 
+// 
 struct svm_model
 {
+	double initial_time;
+	double obj;
 	struct svm_parameter param;	/* parameter */
 	int nr_class;		/* number of classes, = 2 in regression/one class svm */
 	int l;			/* total #SV */
