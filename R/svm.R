@@ -184,6 +184,9 @@ function (x,
     if (type > 2 && !is.numeric(y))
         stop("Need numeric dependent variable for regression.")
 
+    if (length(alpha)==1)
+        alpha = rep(alpha,nr)
+    
     lev <- NULL
     weightlabels <- NULL
 
@@ -264,7 +267,7 @@ function (x,
                 as.integer (cross),
                 as.integer (sparse),
                 as.integer (probability),
-                as.double  (t(alpha)),
+                as.double  (alpha),
 
                 ## results
                 nclasses = integer  (1),

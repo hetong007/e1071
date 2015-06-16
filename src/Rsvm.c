@@ -269,7 +269,7 @@ void svmtrain (double *x, int *r, int *c,
     
     /* set alpha if exist */
     if (TYPEOF(alpha) != NILSXP) {
-      prob.alpha = alpha;
+      prob.alpha = *alpha;
       prob.isalpha = 1;
     }
     /* check parameters & copy error message */
