@@ -268,8 +268,9 @@ void svmtrain (double *x, int *r, int *c,
 	prob.x = sparsify(x, *r, *c);
     
     /* set alpha if exist */
-    if (TYPEOF(alpha) != NILSXP) {
-      prob.alpha = *alpha;
+    //if (TYPEOF(*alpha) != NILSXP) {
+    if (alpha != NULL) {
+      prob.alpha = alpha;
       prob.isalpha = 1;
     }
     /* check parameters & copy error message */

@@ -18,7 +18,7 @@ na.omit, scale = TRUE)
 "radial", degree = 3, gamma = if (is.vector(x)) 1 else 1 / ncol(x),
 coef0 = 0, cost = 1, nu = 0.5,
 class.weights = NULL, cachesize = 40, tolerance = 0.001, epsilon = 0.1,
-shrinking = TRUE, cross = 0, probability = FALSE, fitted = TRUE,
+shrinking = TRUE, cross = 0, probability = FALSE, fitted = TRUE, alpha = NULL,
 ..., subset, na.action = na.omit)
 }
 \arguments{
@@ -87,6 +87,7 @@ shrinking = TRUE, cross = 0, probability = FALSE, fitted = TRUE,
     Squared Error for regression}
   \item{fitted}{logical indicating whether the fitted values should be computed
     and included in the model or not (default: \code{TRUE})}
+  \item{alpha}{numerical vector including the coefficients from a trained svm, (default: \code{NULL})}
   \item{probability}{logical indicating whether the model should
     allow for probability predictions.}
   \item{\dots}{additional parameters for the low level fitting function
