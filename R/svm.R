@@ -1,7 +1,132 @@
+#' Support Vector Machines 
+#' 
+#' svm is used to train a support vector machine. It can be used to carry out general regression and classification (of nu and epsilon-type), as well as density-estimation. A formula interface is provided. 
+#' 
+#' @param formula a symbolic description of the model to be fit.
+#' @param data an optional data frame containing the variables in the model. By default the variables are taken from the environment which ‘svm’ is called from.
+#' @param x a data matrix, a vector, or a sparse matrix (object of class \code{Matrix} 
+#'     provided by the \code{Matrix} package, or of class \code{matrix.csr} provided by the \code{SparseM} package, 
+#'     or of class \code{simple_triplet_matrix} provided by the \code{slam package}).
+#' @param y a response vector with one label for each row/component of x. Can be either a factor (for classification tasks) or a numeric vector (for regression).
+#' @param scale A logical vector indicating the variables to be scaled. 
+#'     If scale is of length 1, the value is recycled as many times as needed. 
+#'     Per default, data are scaled internally (both x and y variables) to zero mean and unit variance. 
+#'     The center and scale values are returned and used for later predictions.
+#' @param type svm can be used as a classification machine. 
+#'     The default setting for type is C-classification, 
+#'     but may be set to nu-classification as well.
+#' @param kernel the kernel used in training and predicting. You might consider 
+#'     changing some of the following parameters, depending on the kernel type.
+#' \describe{
+#'     \item{linear:}{\eqn{u'v}{u'*v}}
+#'     \item{polynomial:}{\eqn{(\gamma u'v + coef0)^{degree}}{(gamma*u'*v + coef0)^degree}}
+#'     \item{radial basis:}{\eqn{e^(-\gamma |u-v|^2)}{exp(-gamma*|u-v|^2)}}
+#'     \item{sigmoid:}{\eqn{tanh(\gamma u'v + coef0)}{tanh(gamma*u'*v + coef0)}}
+#' }
+#' @param degree parameter needed for kernel of type \code{polynomial} (default: 3)
+#' @param gamma parameter needed for all kernels except \code{linear} 
+#'     (default: 1/(data dimension))
+#' @param coef0 parameter needed for kernels of type \code{polynomial} 
+#'     and \code{sigmoid} (default: 0)
+#' @param cost cost of constraints violation (default: 1)---it is the 
+#'     \sQuote{C}-constant of the regularization term in the Lagrange formulation.
+#' @param nu parameter needed for \code{nu-classification}
+#' @param class.weights a named vector of weights for the different
+#'     classes, used for asymmetric class sizes. Not all factor levels have
+#'     to be supplied (default weight: 1). All components have to be named.
+#' @param cachesize cache memory in MB (default 40)
+#' @param tolerance tolerance of termination criterion (default: 0.001)
+#' @param epsilon epsilon in the insensitive-loss function (default: 0.1)
+#' @param shrinking option whether to use the shrinking-heuristics (default: \code{TRUE})
+#' @param cross if a integer value k>0 is specified, a k-fold cross 
+#'     validation on the training data is performed to assess the quality 
+#'     of the model: the accuracy rate for classification and the Mean 
+#'     Squared Error for regression
+#' @param fitted logical indicating whether the fitted values should be computed 
+#'     and included in the model or not (default: \code{TRUE})
+#' @param alpha Initial values for the coefficients (default: \code{NULL}). 
+#'     A numerical vector for binary classification or a nx(k-1) matrix for a k-class-classification problem.
+#' @param probability logical indicating whether the model should 
+#'     allow for probability predictions.
+#' @param ... additional parameters for the low level fitting function \code{svm.default}
+#' @param subset An index vector specifying the cases to be used in the 
+#'     training sample.  (NOTE: If given, this argument must be named.)
+#' @param na.action A function to specify the action to be taken if \code{NA}s are 
+#'     found. The default action is \code{na.omit}, which leads to rejection of cases  
+#'     with missing values on any required variable. An alternative 
+#'     is \code{na.fail}, which causes an error if \code{NA} cases 
+#'     are found. (NOTE: If given, this argument must be named.)
+#' 
+#' @details
+#'     For multiclass-classification with k levels, k>2, \code{libsvm} uses the
+#'     \sQuote{one-against-one}-approach, in which k(k-1)/2 binary classifiers are
+#'     trained; the appropriate class is found by a voting scheme.
+#' 
+#'     \code{libsvm} internally uses a sparse data representation, which is 
+#'     also high-level supported by the package \pkg{SparseM}.
+#' 
+#'     If the predictor variables include factors, the formula interface must be used to get a
+#'     correct model matrix.
+#' 
+#'     \code{plot.svm} allows a simple graphical
+#'     visualization of classification models.
+#' 
+#'     The probability model for classification fits a logistic distribution
+#'     using maximum likelihood to the decision values of all binary
+#'     classifiers, and computes the a-posteriori class probabilities for the
+#'     multi-class problem using quadratic optimization. The probabilistic
+#'     regression model assumes (zero-mean) laplace-distributed errors for the
+#'     predictions, and estimates the scale parameter using maximum likelihood.
+#' 
+#' @references
+#' 
+#' \itemize{
+#'     \item
+#'         Chang, Chih-Chung and Lin, Chih-Jen:\cr
+#'         \emph{LIBSVM: a library for Support Vector Machines}\cr
+#'         \url{http://www.csie.ntu.edu.tw/~cjlin/libsvm}
+#'     
+#'     \item
+#'         Exact formulations of models, algorithms, etc. can be found in the
+#'         document:\cr
+#'         Chang, Chih-Chung and Lin, Chih-Jen:\cr
+#'         \emph{LIBSVM: a library for Support Vector Machines}\cr
+#'         \url{http://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.ps.gz}
+#'     
+#'     \item
+#'         More implementation details and speed benchmarks can be found on:
+#'         Rong-En Fan and Pai-Hsune Chen and Chih-Jen Lin:\cr
+#'         \emph{Working Set Selection Using the Second Order Information for Training SVM}\cr
+#'         \url{http://www.csie.ntu.edu.tw/~cjlin/papers/quadworkset.pdf}
+#' }
+#' 
+#' @author
+#' Tong He (based on package \code{e1071} by David Meyer and C/C++ code by Cho-Jui Hsieh in Divide-and-Conquer kernel SVM (DC-SVM) )
+#' 
+#' @examples
+#' data(iris)
+#' attach(iris)
+#' 
+#' # default with factor response:
+#' model = svm(Species ~ ., data = iris)
+#' 
+#' # get new alpha
+#' new.alpha = matrix(0, nrow(iris),2)
+#' new.alpha[model$index,] = model$coefs
+#' 
+#' model2 = svm(Species ~ ., data = iris, alpha = new.alpha)
+#' 
+#' 
+#' 
+#' 
+#' @export
+#' 
+
 svm <-
 function (x, ...)
     UseMethod ("svm")
 
+#' @export
 svm.formula <-
 function (formula, data = NULL, ..., subset, na.action = na.omit, scale = TRUE)
 {
@@ -41,6 +166,7 @@ function (formula, data = NULL, ..., subset, na.action = na.omit, scale = TRUE)
     return (ret)
 }
 
+#' export
 svm.default <-
 function (x,
           y           = NULL,
@@ -66,12 +192,9 @@ function (x,
           na.action = na.omit)
 {
     if(inherits(x, "Matrix")) {
-        library("SparseM")
-        library("Matrix")
         x <- as(x, "matrix.csr")
     }
     if(inherits(x, "simple_triplet_matrix")) {
-        library("SparseM")
         ind <- order(x$i, x$j)
         x <- new("matrix.csr",
                  ra = x$v[ind],
@@ -79,8 +202,7 @@ function (x,
                  ia = as.integer(cumsum(c(1, tabulate(x$i[ind])))),
                  dimension = c(x$nrow, x$ncol))
     }
-    if (sparse <- inherits(x, "matrix.csr"))
-        library("SparseM")
+    sparse <- inherits(x, "matrix.csr")
 
     ## NULL parameters?
     if(is.null(degree)) stop(sQuote("degree"), " must not be NULL!")
@@ -95,6 +217,13 @@ function (x,
     x.scale <- y.scale <- NULL
     formula <- inherits(x, "svm.formula")
 
+    if (!is.factor(y)) {
+      y = as.factor(y)
+      nlvl = length(levels(y))
+      if (nlvl>16) 
+        stop("Only classification missions with no more than 16 target classes are allowed.")
+    }
+
     ## determine model type
     if (is.null(type)) type <-
         if (is.null(y)) "one-classification"
@@ -102,10 +231,7 @@ function (x,
         else "eps-regression"
 
     type <- pmatch(type, c("C-classification",
-                           "nu-classification",
-                           "one-classification",
-                           "eps-regression",
-                           "nu-regression"), 99) - 1
+                           "nu-classification"), 99) - 1
 
     if (type > 10) stop("wrong type specification!")
 
@@ -184,6 +310,7 @@ function (x,
     if (type > 2 && !is.numeric(y))
         stop("Need numeric dependent variable for regression.")
 
+    # Type and format check of alpha
     if (!is.null(alpha)) {
         if (is.matrix(alpha))
             alpha = as.vector(t(alpha))
@@ -295,7 +422,7 @@ function (x,
                 ctotal2  = double   (1),
                 error    = err,
 
-                PACKAGE = "e1071")
+                PACKAGE = "SwarmSVM")
 
     if (cret$error != empty_string)
         stop(paste(cret$error, "!", sep=""))
@@ -382,12 +509,9 @@ function (object, newdata,
 
 
     if(inherits(newdata, "Matrix")) {
-        library("SparseM")
-        library("Matrix")
         newdata <- as(newdata, "matrix.csr")
     }
     if(inherits(newdata, "simple_triplet_matrix")) {
-       library("SparseM")
        ind <- order(newdata$i, newdata$j)
        newdata <- new("matrix.csr",
                       ra = newdata$v[ind],
@@ -397,8 +521,6 @@ function (object, newdata,
    }
 
     sparse <- inherits(newdata, "matrix.csr")
-    if (object$sparse || sparse)
-        library("SparseM")
 
     act <- NULL
     if ((is.vector(newdata) && is.atomic(newdata)))
@@ -476,7 +598,7 @@ function (object, newdata,
                dec = double(nrow(newdata) * object$nclasses * (object$nclasses - 1) / 2),
                prob = double(nrow(newdata) * object$nclasses),
 
-               PACKAGE = "e1071"
+               PACKAGE = "SwarmSVM"
                )
 
     ret2 <- if (is.character(object$levels)) # classification: return factors
@@ -708,7 +830,7 @@ function (object, svm.file="Rdata.svm", scale.file = "Rdata.scale",
                ## filename
                as.character(svm.file),
 
-               PACKAGE = "e1071"
+               PACKAGE = "SwarmSVM"
                )$ret
 
     write.table(data.frame(center = object$x.scale$"scaled:center",
@@ -720,3 +842,4 @@ function (object, svm.file="Rdata.svm", scale.file = "Rdata.scale",
                                scale  = object$y.scale$"scaled:scale"),
                     file=yscale.file, col.names=FALSE, row.names=FALSE)
 }
+
