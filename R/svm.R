@@ -188,11 +188,11 @@ function (x,
         if (is.matrix(alpha))
             alpha = as.vector(t(alpha))
         if (is.factor(y)) {
-            nclass = length(levels(y))
+            nclass = length(levels(y))-1
             if (length(alpha)==1)
                 alpha = rep(alpha,nrow(x)*nclass)
             if (length(alpha)!=nrow(x)*nclass)
-                stop("length of alpha should equal")
+                stop("length of alpha should equal to number_of_points * (number_of_classes-1)")
         }
     }
     
